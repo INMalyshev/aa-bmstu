@@ -1,0 +1,188 @@
+\chapter{Конструкторская часть}
+В этом разделе будут приведены схемы алгоритмов умножения матриц и рассчет их трудоемкости.
+
+\section{Разработка алгоритмов}
+
+Предполагается, что на вход всех алгоритмов поступили матрицы верного размера.
+
+На рисунке \ref{img:standart} приведена схема стандартного алгоритма умножения матриц.
+
+На рисунке \ref{img:vinograd} приведена схема алгоритма Винограда умножения матриц.
+
+На рисунке \ref{img:vinograd_modified} приведена схема оптимизировванного алгоритма Винограда умножения матриц.
+
+
+
+\section{Модель вычислений}
+
+Для последующего вычисления трудоемкости необходимо ввести модель вычислений:
+\begin{enumerate}
+	\item операции из списка (\ref{for:opers}) имеют трудоемкость 1;
+	\begin{equation}
+		\label{for:opers}
+		+, -, *, /, \%, ==, !=, <, >, <=, >=, [], ++, {-}-
+	\end{equation}
+	\item трудоемкость оператора выбора \code{if условие then A else B} рассчитывается, как (\ref{for:if});
+	\begin{equation}
+		\label{for:if}
+		f_{if} = f_{\text{условия}} +
+		\begin{cases}
+			f_A, & \text{если условие выполняется,}\\
+			f_B, & \text{иначе.}
+		\end{cases}
+	\end{equation}
+	\newpage
+	\item трудоемкость цикла рассчитывается, как (\ref{for:for});
+	\begin{equation}
+		\label{for:for}
+		f_{for} = f_{\text{инициализации}} + f_{\text{сравнения}} + N(f_{\text{тела}} + f_{\text{инкремента}} + f_{\text{сравнения}})
+	\end{equation}
+	\item трудоемкость вызова функции равна 0.
+\end{enumerate}
+
+
+\section{Трудоемкость алгоритмов}
+
+В следующих частях будут расчитаны трудоемкости алгоритмов умножения матриц.
+
+Во всех последующих алгоритмах не будем учитывать инициализацию матрицы, в которую записывается результат, потому что данное действие есть во всех алгоритмах и при этом не является самым трудоёмким.
+
+
+\subsection{Стандартный алгоритм умножения матриц}
+
+Трудоёмкость стандартного алгоритма умножения матриц состоит из:
+\begin{itemize}
+	\item внешнего цикла по $i \in [1..M]$, трудоёмкость которого: $f = 2 + M \cdot (2 + f_{body})$;
+	\item цикла по $j \in [1..N]$, трудоёмкость которого: $f = 2 + N \cdot (2 + f_{body})$;
+	\item цикла по $k \in [1..K]$, трудоёмкость которого: $f = 2 + 10K$;
+\end{itemize}
+
+Учитывая, что трудоёмкость стандартного алгоритма равна трудоёмкости внешнего цикла, можно вычислить ее, подставив циклы тела (\ref{for:standard}):
+\begin{equation}
+	\label{for:standard}
+	f_{s} = 2 + M \cdot (4 + N \cdot (4 + 10K)) = 2 + 4M + 4MN + 10MNK \approx 10MNK
+\end{equation}
+
+\subsection{Алгоритм Копперсмита --- Винограда}
+
+Трудоёмкость алгоритма Копперсмита --- Винограда состоит из:
+\begin{itemize}
+	\item Создания и инициализации массивов MH и MV, трудоёмкость которого (\ref{for:init}).
+	\begin{equation}
+		\label{for:init}
+		f_{init} = M + N;
+	\end{equation}
+	
+	\item Заполнения массива MH, трудоёмкость которого (\ref{for:MH}).
+	\begin{equation}
+		\label{for:MH}
+		f_{MH} = 2 + K (2 + \frac{M}{2} \cdot 11)
+	\end{equation}
+	
+	\item Заполнения массива MV, трудоёмкость которого (\ref{for:MV}).
+	\begin{equation}
+		\label{for:MV}
+		f_{MV} = 2 + K (2 + \frac{N}{2} \cdot 11)
+	\end{equation}
+	
+	\item Цикла заполнения для чётных размеров, трудоёмкость которого (\ref{for:cycle}).
+	\begin{equation}
+		\label{for:cycle}
+		f_{cycle} = 2 + M \cdot (4 + N \cdot (11 + \frac{K}{2} \cdot 23))
+	\end{equation}
+	
+	\item Цикла, для дополнения умножения суммой последних нечётных строки и столбца, трудоемкость которого (\ref{for:last}).
+	\begin{equation}
+		\label{for:last}
+		f_{last} = \begin{cases}
+			2, & \text{чётная,}\\
+			4 + M \cdot (4 + 14N), & \text{иначе.}
+		\end{cases}
+	\end{equation}
+\end{itemize}
+
+Итого, для худшего случая (нечётный общий размер матриц) имеем (\ref{for:bad}).
+\begin{equation}
+	\label{for:bad}
+	f =  f_{MH} + f_{MV} + f_{cycle} + f_{last}\approx 11.5 \cdot MNK
+\end{equation}
+
+Для лучшего случая (чётный общий размер матриц) имеем (\ref{for:good}).
+\begin{equation}
+	\label{for:good}
+f =  f_{MH} + f_{MV} + f_{cycle} + f_{last} \approx 11.5 \cdot MNK
+\end{equation}
+
+
+\subsection{Оптимизированный алгоритм Копперсмита — Винограда}
+
+Оптимизированный алгоритм Винограда представляет собой обычный алгоритм Винограда, за исключением следующих оптимизаций:
+\begin{itemize}
+	\item вычисление происходит заранее;
+	\item используется битовый сдвиг, вместо деления на 2;
+	\item операция вида a = a + b заменена на a += b.
+\end{itemize}
+
+
+Трудоёмкость улучшенного алгоритма Копперсмита — Винограда состоит из:
+\begin{itemize}
+	\item создания и инициализации массивов MH и MV, трудоёмкость которого (\ref{for:impr_init}):
+	\begin{equation}
+		\label{for:impr_init}
+		f_{init} = M + N;
+	\end{equation}
+	
+	\item заполнения массива MH, трудоёмкость которого (\ref{for:impr_MH}):
+	\begin{equation}
+		\label{for:impr_MH}
+		f_{MH} =  2 + K (2 + \frac{M}{2} \cdot 8);
+	\end{equation}
+	
+	\item заполнения массива MV, трудоёмкость которого (\ref{for:impr_MV}):
+	\begin{equation}
+		\label{for:impr_MV}
+		f_{MV} =  2 + K (2 + \frac{M}{2} \cdot 8);
+	\end{equation}
+	
+	\item цикла заполнения для чётных размеров, трудоёмкость которого (\ref{for:impr_cycle}):
+	\begin{equation}
+		\label{for:impr_cycle}
+		f_{cycle} =2 + M \cdot (4 + N \cdot (11 + \frac{K}{2} \cdot 18));
+	\end{equation}
+	
+	\item условие, для дополнения умножения суммой последних нечётных строки и столбца, если общий размер нечётный, трудоемкость которого (\ref{for:impr_last}):
+	\begin{equation}
+		\label{for:impr_last}
+		f_{last} = 
+		\begin{cases}
+			1, & \text{чётная,}\\
+			4 + M \cdot (4 + 10N), & \text{иначе.}
+		\end{cases}
+	\end{equation}
+\end{itemize}
+
+Итого, для худшего случая (нечётный общий размер матриц) имеем (\ref{for:bad_impr}):
+\begin{equation}
+	\label{for:bad_impr}
+	f = f_{MH} + f_{MV} + f_{cycle} + f_{last} \approx 9MNK
+\end{equation}
+
+Для лучшего случая (чётный общий размер матриц) имеем (\ref{for:good_impr}):
+\begin{equation}
+	\label{for:good_impr}
+	f = f_{MH} + f_{MV} + f_{cycle} + f_{last} \approx 9MNK
+\end{equation}
+
+
+\section*{Вывод}
+
+На основе теоретических данных, полученных из аналитического раздела, были построены схемы обоих алгоритмов умножения матриц.  Оценены их трудоёмкости в лучшем и худшем случаях.
+
+\img{120mm}{standart}{Схема стандартного алгоритма умножения матриц}
+\clearpage
+
+\img{150mm}{vinograd}{Схема алгоритма Винограда умножения матриц}
+\clearpage
+
+\img{150mm}{vinograd_modified}{Схема оптимизированного алгоритма Винограда умножения матриц}
+\clearpage

@@ -1,0 +1,58 @@
+This is BibTeX, Version 0.99d (TeX Live 2022/dev/Debian)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: report.aux
+A level-1 auxiliary file: 00-title.aux
+A level-1 auxiliary file: 01-contents.aux
+A level-1 auxiliary file: 02-intro.aux
+A level-1 auxiliary file: 10-analysis.aux
+A level-1 auxiliary file: 20-design.aux
+A level-1 auxiliary file: 30-impl.aux
+A level-1 auxiliary file: 40-research.aux
+A level-1 auxiliary file: 50-conclusion.aux
+A level-1 auxiliary file: 51-biblio.aux
+The style file: utf8gost705u.bst
+Database file #1: 51-biblio.bib
+Warning--empty booktitle in Levenshtein
+Warning--empty booktitle in Dameray_Levenshtein
+You've used 5 entries,
+            2964 wiz_defined-function locations,
+            701 strings with 6422 characters,
+and the built_in function-call counts, 1204 in all, are:
+= -- 145
+> -- 13
+< -- 2
++ -- 7
+- -- 2
+* -- 42
+:= -- 125
+add.period$ -- 16
+call.type$ -- 5
+change.case$ -- 0
+chr.to.int$ -- 0
+cite$ -- 7
+duplicate$ -- 59
+empty$ -- 138
+format.name$ -- 2
+if$ -- 313
+int.to.chr$ -- 0
+int.to.str$ -- 5
+missing$ -- 0
+newline$ -- 39
+num.names$ -- 6
+pop$ -- 38
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 48
+stack$ -- 0
+substring$ -- 52
+swap$ -- 39
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 2
+while$ -- 7
+width$ -- 6
+write$ -- 85
+(There were 2 warnings)

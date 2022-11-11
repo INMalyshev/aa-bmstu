@@ -1,0 +1,201 @@
+\chapter{Технологическая часть}
+
+В данном разделе будут приведены требования к программному обеспечению, средства реализации и листинги кода.
+
+\section{Требования к программе}
+
+К программе предъявляется ряд требований:
+\begin{itemize}
+	\item на вход подаётся массив сравнимых элементов (целые числа);
+	\item на выходе — тот же массив, но в отсортированном порядке;
+	\item программа не должна аварийно завершаться при некорректном вводе.
+\end{itemize}
+
+\section{Средства реализации}
+
+В качестве языка программирования для реализации данной лабораторной работы был выбран язык программирования (ЯП) Python \cite{pythonlang}. 
+
+Данный ЯП предоставляет широкий набор библиотек и руководств по их использованию, что значительно облегчает выполнения большинства задач в области программирования. 
+
+Время работы алгоритмов было замерено с помощью функции time() из библиотеки time \cite{pythonlangtime}.
+
+\section{Сведения о модулях программы}
+Программа состоит из шести модулей:
+\begin{enumerate}
+	\item beenary\_tree\_sort.py -- файл, содержащий реализацию бинарной сортировки;
+	\item heap\_sort.py -- файл, содержащий реализаци пирамидальной сортировки;
+	\item smooth\_sort.py -- фаайл, содержащий реализацию плавной сортировки;
+	\item perfomance\_tests.py -- файл, содержащий функциональные тесты;
+	\item time\_tests.py -- файл, содержащий программу, выполняющую замеры времени работы сортировок;
+	\item memory\_tests.py -- файл, содержащий программу, выполняющую замеры выделяемой памяти.
+\end{enumerate}
+
+
+\section{Реализация алгоритмов}
+В листингах \ref{lst:heap}, \ref{lst:smooth}, \ref{lst:beenary} представлены реализации алгоритмов сортировок (пирамидальной, плавной и бинарным деревом).
+
+\begin{lstlisting}[label=lst:heap,caption=Алгоритм пирамидальной сортировки]
+def heap_sort(data):
+	for start in range((len(data) - 2) // 2, -1, -1):
+		HeapSift(data, start, len(data) - 1) 
+	for end in range(len(data) - 1, 0, -1): 
+		data[end], data[0] = data[0], data[end]
+		HeapSift(data, 0, end - 1)
+	return data
+
+def HeapSift(data, start, end):
+	root = start 
+	while True:
+		child = root * 2 + 1
+		if child > end: break 
+		if child + 1 <= end and data[child] < data[child + 1]:
+			child += 1
+		if data[root] < data[child]:
+			data[root], data[child] = data[child], data[root]
+			root = child
+		else:
+			break
+\end{lstlisting}
+
+\begin{lstlisting}[label=lst:smooth,caption= Алгоритм плавной сортировки]
+def smoothsort(lst):
+	leo_nums = leonardo_numbers(len(lst))
+	heap = []
+
+	for i in range(len(lst)):
+		if len(heap) >= 2 and heap[-2] == heap[-1] + 1:
+			heap.pop()
+			heap[-1] += 1
+		else:
+			if len(heap) >= 1 and heap[-1] == 1:
+				heap.append(0)
+			else:
+				heap.append(1)
+				restore_heap(lst, i, heap, leo_nums)
+
+	for i in reversed(range(len(lst))):
+		if heap[-1] < 2:
+			heap.pop()
+		else:
+			k = heap.pop()
+			t_r, k_r, t_l, k_l = get_child_trees(i, k, leo_nums)
+			heap.append(k_l)
+		restore_heap(lst, t_l, heap, leo_nums)
+		heap.append(k_r)
+		restore_heap(lst, t_r, heap, leo_nums)
+
+def leonardo_numbers(hi):
+	a, b = 1, 1
+	numbers = []
+	while a <= hi:
+		numbers.append(a)
+		a, b = b, a + b + 1
+	return numbers
+
+def restore_heap(lst, i, heap, leo_nums):
+	current = len(heap) - 1
+	k = heap[current]
+	
+	while current > 0:
+		j = i - leo_nums[k]
+		if (lst[j] > lst[i] and
+			(k < 2 or lst[j] > lst[i-1] and lst[j] > lst[i-2])):
+			lst[i], lst[j] = lst[j], lst[i]
+			i = j
+			current -= 1
+			k = heap[current]
+		else:
+			break
+
+	while k >= 2:
+		t_r, k_r, t_l, k_l = get_child_trees(i, k, leo_nums)
+		if lst[i] < lst[t_r] or lst[i] < lst[t_l]:
+			if lst[t_r] > lst[t_l]:
+				lst[i], lst[t_r] = lst[t_r], lst[i]
+				i, k = t_r, k_r
+			else:
+				lst[i], lst[t_l] = lst[t_l], lst[i]
+				i, k = t_l, k_l
+		else:
+			break
+
+def get_child_trees(i, k, leo_nums):
+	t_r, k_r = i - 1, k - 2
+	t_l, k_l = t_r - leo_nums[k_r], k - 1
+	return t_r, k_r, t_l, k_l
+
+def smooth_sort(data):
+	smoothsort(data)
+	return data
+\end{lstlisting}
+
+\begin{lstlisting}[label=lst:beenary,caption=Алгоритм сортировки бинарным деревом]
+class Node:
+	def __init__(self, val, left = None, right = None):
+		self.val = val
+		self.left = left
+		self.right = right
+	
+	def insert(self, val):
+		if self.val > val:
+			if self.left is None:
+				self.left = Node(val)
+			else:
+				self.left.insert(val)
+		else:
+			if self.right is None:
+				self.right = Node(val)
+			else:
+				self.right.insert(val)
+	
+	def get_sorted(self, dst):
+		if self.left is not None:
+			self.left.get_sorted(dst)
+		dst.append(self.val)
+		if self.right is not None:
+			self.right.get_sorted(dst)
+	
+	def sort(self):
+		dst = []
+		self.get_sorted(dst)
+		return dst
+
+
+def beenary_tree_sort(arr):
+	if len(arr) == 0:
+	return arr
+
+	head = Node(arr[0])
+	for i in range(1, len(arr)):
+	head.insert(arr[i])
+
+	return head.sort()
+\end{lstlisting}
+
+\section{Функциональные тесты}
+
+В таблице \ref{tbl:functional_test} приведены тесты для функций, реализующих алгоритмы сортировки. Тесты пройдены успешно.
+
+
+\begin{table}[h]
+	\begin{center}
+		\captionsetup{justification=raggedright,singlelinecheck=off}
+		\caption{\label{tbl:functional_test} Функциональные тесты}
+		\begin{tabular}{|c|c|c|}
+			\hline
+			Входной массив & Ожидаемый результат & Результат \\ 
+			\hline
+			$[1,2,3,4]$ & $[1,2,3,4]$  & $[1,2,3,4]$\\
+			$[5,4,3,2,1]$  & $[1,2,3,4,5]$ & $[1,2,3,4,5]$\\
+			$[3,2,-5,0,1]$  & $[-5,0,0,2,3]$  & $[-5,0,0,2,3]$\\
+			$[4]$  & $[4]$  & $[4]$\\
+			$[]$  & $[]$  & $[]$\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+
+\section*{Вывод}
+
+Были выбраны средства реализации и замера времени выполнения алгоритмов сортировки. Были реализованы алгоритмы трех сортировок и программа, реализующая замер времени работы этих алгоритмов.

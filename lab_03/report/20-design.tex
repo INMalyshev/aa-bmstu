@@ -1,0 +1,160 @@
+\chapter{Конструкторская часть}
+В этом разделе будут приведены схемы алгоритмов и вычисления трудоемкости данных алгоритмов.
+
+\section{Разработка алгоритмов}
+
+На рисунках \ref{img:alg1}, \ref{img:alg2}, \ref{img:alg3} и \ref{img:alg4} представлены схемы алгоритмов пирамидальной сортировки, плавной сортировки, построения двоичного дерева поиска и сортировки двоичным деревом соответственно.
+
+\section{Модель вычислений (оценки трудоемкости)}
+
+Для последующего вычисления трудоемкости необходимо ввести модель вычислений:
+\begin{enumerate}
+	\item операции из списка (\ref{for:opers}) имеют трудоемкость 1;
+	\begin{equation}
+		\label{for:opers}
+		+, -, /, *, \%, =, ==, !=, <, >, <=, >=, []
+	\end{equation}
+	\item трудоемкость оператора выбора \code{if условие then A else B} рассчитывается, как (\ref{for:if});
+	\begin{equation}
+		\label{for:if}
+		f_{if} = f_{\text{условия}} +
+		\begin{cases}
+			f_A, & \text{если условие выполняется,}\\
+			f_B, & \text{иначе.}
+		\end{cases}
+	\end{equation}
+	\item трудоемкость цикла рассчитывается, как (\ref{for:for});
+	\begin{equation}
+		\label{for:for}
+		f_{for} = f_{\text{инициализации}} + f_{\text{сравнения}} + N(f_{\text{тела}} + f_{\text{инкремент}} + f_{\text{сравнения}})
+	\end{equation}
+	\item трудоемкость вызова функции равна 0.
+\end{enumerate}
+
+\section{Трудоёмкость алгоритмов}
+
+Обозначим во всех последующих вычислениях размер массивов как N.
+
+\subsection{Алгоритм пирамидальной сортировки}
+
+Трудоемкость алгоритма пирамидальной сортировки состоит из:
+\begin{itemize}
+	\item Трудоемкости полной "просейки" всего массива, которая равна (\ref{for:alg1_e1}).
+		\begin{equation}
+			\label{for:alg1_e1}
+			f_{full\_sift} = 2 + N \cdot f_{sift}
+		\end{equation}
+	\item Трудоемкости единоразовой "просейки" $f_{sift}$, которая участвует в рассчете трудоемкости полной "просейки" (\ref{for:alg1_e1}) и основного цикла (\ref{for:heap}), которая равна (\ref{for:sift}).
+		\begin{equation}
+			\label{for:sift}
+			f_{sift} = 4 + \begin{cases}
+							4, & \text{л.с.}\\
+							22 \cdot \log(N), & \text{х.с.}\\
+						 \end{cases}
+		\end{equation}
+	\item Трудоемкости основного цикла, которая равна (\ref{for:heap}).
+		\begin{equation}
+			\label{for:heap}
+			f_{main\_loop} = 1 + (8 + f_{sift}) \cdot N
+		\end{equation}
+\end{itemize}
+Таким образом общая трудоемкость алгоритма выражается как (\ref{for:heap_total}).
+\begin{equation}
+	\label{for:heap_total}
+	f_{total} = f_{full\_sift} + f_{main\_loop}
+\end{equation}
+Минимально возможная трудоемкость алгоритма (\ref{heap_min}).
+\begin{equation}
+	\label{heap_min}
+	f_{heap\_min} = 12 N + 3 + 4 \cdot \log(N) = O(N\log(N))
+\end{equation}
+Максимально возможная трудоемкость алгоритма (\ref{heap_max}).
+\begin{equation}
+	\label{heap_max}
+	f_{heap\_max} = 16 \cdot \log(N) + 3 \cdot \log(N) = O(N\log(N))
+\end{equation}
+
+
+
+\subsection{Алгоритм плавной сортировки}
+
+Трудоемкость алгоритма плавной сортировки состоит из:
+\begin{itemize}
+	\item Трудоемкости построения Леонардовых деревьев, которая равна (\ref{leo_trees}).
+	\begin{equation}
+		\label{leo_trees}
+		f_{leo\_trees} = 13 N \cdot \log(N) + 7
+	\end{equation}
+	\item Трудоемкости восстановления порядка элеменотов массива, которая равна (\ref{leo_arr}).
+	\begin{equation}
+		\label{leo_arr}
+		f_{main\_loop} = 17 N
+	\end{equation}
+\end{itemize}
+Таким образом общая трудоемкость алгоритма выражается как (\ref{leo_total}).
+\begin{equation}
+	\label{leo_total}
+	f_{total} = f_{leo\_trees} + f_{main\_loop}
+\end{equation}
+Минимально возможная трудоемкость алгоритма (\ref{leo_min}).
+\begin{equation}
+	\label{leo_min}
+	f_{min} = O(N)
+\end{equation}
+Максимально возможная трудоемкость алгоритма (\ref{leo_max}).
+\begin{equation}
+	\label{leo_max}
+	f_{max} = O(N\log(N))
+\end{equation}
+
+
+
+\subsection{Алгоритм сортировки бинарным деревом}
+
+Трудоемкость алгоритма сортировки бинарным деревом состоит из:
+\begin{itemize}
+	\item Трудоемкости построения бинарного дерева, которая равна (\ref{make_tree}).
+	\begin{equation}
+		\label{make_tree}
+		f_{make\_tree} = (5 \cdot \log(N) + 3) * N = N \cdot \log(N)
+	\end{equation}
+	\item Трудоемкости восстановления порядка элементов массива, которая равна (\ref{make_arr}):
+	\begin{equation}
+		\label{make_arr}
+		f_{main\_loop} = 7 N
+	\end{equation}
+\end{itemize}
+Таким образом общая трудоемкость алгоритма выражается как (\ref{for:been_total}).
+\begin{equation}
+	\label{for:been_total}
+	f_{total} = f_{make\_tree} + f_{main\_loop}
+\end{equation}
+Минимально возможная трудоемкость алгоритма (\ref{been_min}).
+\begin{equation}
+	\label{been_min}
+	f_{min} = O(N\log(N))
+\end{equation}
+Максимально возможная трудоемкость алгоритма (\ref{been_max}).
+\begin{equation}
+	\label{been_max}
+	f_{max} = O(N\log(N))
+\end{equation}
+
+\newpage
+\img{200mm}{alg1}{Схема алгоритма пирамидальной сортировки}
+
+\newpage
+\img{170mm}{alg2}{Схема алгоритма плавной сортировки}
+
+\newpage
+\img{100mm}{alg3}{Схема алгоритма построения двоичного дерева поиска}
+
+\newpage
+\img{200mm}{alg4}{Схема алгоритма сортировки двоичным деревом}
+
+\newpage
+\section*{Вывод}
+Были разработаны схемы всех трех алгоритмов сортировки. Для каждого из них были рассчитаны и оценены лучшие и худшие случаи.
+
+
+

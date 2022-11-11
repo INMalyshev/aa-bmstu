@@ -1,0 +1,4 @@
+prettytable==3.4.1
+pyxDamerauLevenshtein==1.7.1
+rapidfuzz==2.11.1
+wcwidth==0.2.5

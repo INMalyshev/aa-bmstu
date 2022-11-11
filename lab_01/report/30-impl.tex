@@ -1,0 +1,175 @@
+\chapter{Технологическая часть}
+
+В данном разделе будут приведены требования к программному обеспечению, средства реализации и листинги кода.
+
+\section{Требования к ПО}
+
+Программа принимает две строки (регистрозависимые). В качестве результата возвращается число, равное редакторскому расстоянию. Необходимо реализовать возможность подсчета процессорнго времени и пиковой использованной памяти для каждого из алго­ритмов.
+
+\section{Средства реализации}
+
+Для реализации данной лабораторной работы был выбран язык программирования (ЯП) Python \cite{pythonlang}. 
+
+Данный язык достаточно удобен и гибок в использовании. 
+
+Время работы алгоритмов было замерено с помощью функции time() из библиотеки time \cite{pythonlangtime}
+
+\section{Сведения о модулях программы}
+Программа состоит из пяти модулей:
+\begin{enumerate}
+	\item algorithm.py - хранит реализацию алгоритмов;
+	\item test.py - хранит реализацию тестирующей системы и тесты;
+	\item memory.py - хранит реализацию системы замера памяти;
+	\item time.py - хранит реализацию системы замера времени;
+	\item utils.py - хранит реализацию вспомогательных функций.
+\end{enumerate}
+
+
+\section{Реализация алгоритмов}
+
+ В листингах \ref{lst:non_rec_l}, \ref{lst:non_rec_dl}, \ref{lst:rec_dl}, \ref{lst:rec_dl_cache} приведены реализации алгоритмов нахождения расстояния Левенштейна и Дамерау -- Левенштейна.
+
+\begin{lstlisting}[label=lst:non_rec_l,caption=Функция нахождения расстояния Левенштейна нерекурсивным методом.]
+def non_recursive_levenshtein(s1, s2):
+    distances = [[0 for _ in range(len(s1) + 1)] for __ in range(len(s2) + 1)]
+
+    for i in range(len(s1) + 1):
+        for j in range(len(s2) + 1):
+            cur_dist = -1
+            if i == 0 and j == 0:
+                cur_dist = 0
+            elif i == 0 and j > 0:
+                cur_dist = j
+            elif j == 0 and i > 0:
+                cur_dist = i
+            else:
+                left = distances[j][i - 1] + 1
+                up = distances[j - 1][i] + 1
+                left_up = distances[j - 1][i - 1] + (0 if s1[i - 1] == s2[j - 1] else 1)
+                cur_dist = min(left, up, left_up)
+            
+            distances[j][i] = cur_dist
+
+    return distances[len(s2)][len(s1)]
+	
+\end{lstlisting}
+
+\begin{lstlisting}[label=lst:non_rec_dl,caption=Функция нахождения расстояния Дамерау -- Левенштейна нерекурсивным методом.]
+def non_recursive_damerau_levenshtein(s1, s2):
+    distances = [[0 for _ in range(len(s1) + 1)] for __ in range(len(s2) + 1)]
+
+    for i in range(len(s1) + 1):
+        for j in range(len(s2) + 1):
+            cur_dist = -1
+            if i == 0 and j == 0:
+                cur_dist = 0
+            elif i == 0 and j > 0:
+                cur_dist = j
+            elif j == 0 and i > 0:
+                cur_dist = i
+            else:
+                left = distances[j][i - 1] + 1
+                up = distances[j - 1][i] + 1
+                left_up = distances[j - 1][i - 1] + (0 if s1[i - 1] == s2[j - 1] else 1)
+                if i > 1 and j > 1 and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]:
+                    exchange = distances[j - 2][i - 2] + 1
+                    cur_dist = min(left, up, left_up, exchange)
+                else:
+                    cur_dist = min(left, up, left_up)
+                
+            distances[j][i] = cur_dist
+
+    return distances[len(s2)][len(s1)]
+	
+\end{lstlisting}
+
+\begin{lstlisting}[label=lst:rec_dl,caption=Функция нахождения расстояния Дамерау -- Левенштейна с использованием рекурсии.]
+def recursive_damerau_levenshtein(s1, s2, i, j):
+    if i == 0 and j == 0:
+        return 0
+    elif i == 0 and j > 0:
+        return j
+    elif j == 0 and i > 0:
+        return i
+    else:
+        left = recursive_damerau_levenshtein(s1, s2, i - 1, j) + 1
+        up = recursive_damerau_levenshtein(s1, s2, i, j - 1) + 1
+        left_up = recursive_damerau_levenshtein(s1, s2, i - 1, j - 1) + (0 if s1[i - 1] == s2[j - 1] else 1)
+        if i > 1 and j > 1 and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]:
+            exchange = recursive_damerau_levenshtein(s1, s2, i - 2, j - 2) + 1 if (i > 0 and j > 0 \
+                and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]) else left_up
+            return min(left, up, left_up, exchange)
+        else:
+            return min(left, up, left_up)
+	
+\end{lstlisting}
+
+\begin{lstlisting}[label=lst:rec_dl_cache,caption=Функция нахождения расстояния Дамерау -- Левенштейна рекурсивным методом с использованием кеша.]
+def recursive_damerau_levenshtein_with_cache(s1, s2, i, j, cache):
+    if cache[j][i] != -1:
+        return cache[j][i]
+    
+    if i == 0 and j == 0:
+        cache[j][i] = 0
+        return cache[j][i]
+    elif i == 0 and j > 0:
+        cache[j][i] = j
+        return cache[j][i]
+    elif j == 0 and i > 0:
+        cache[j][i] = i
+        return cache[j][i]
+    else:
+        left = recursive_damerau_levenshtein_with_cache(s1, s2, i - 1, j, cache) + 1
+        up = recursive_damerau_levenshtein_with_cache(s1, s2, i, j - 1, cache) + 1
+        left_up = recursive_damerau_levenshtein_with_cache(s1, s2, i - 1, j - 1, cache)\
+            + (0 if s1[i - 1] == s2[j - 1] else 1)
+        if i > 1 and j > 1 and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]:
+            exchange = recursive_damerau_levenshtein_with_cache(s1, s2, i - 2, j - 2, cache)\
+                + 1 if (i > 0 and j > 0 and s1[i - 1] == s2[j - 2] and s1[i - 2] == s2[j - 1]) else left_up
+            cache[j][i] = min(left, up, left_up, exchange)
+        else:
+            cache[j][i] = min(left, up, left_up)
+        
+        return cache[j][i]
+\end{lstlisting}
+
+\section{Функциональные тесты}
+В таблице \ref{tabular:functional_test} приведены функциональные тесты для алгоритмов вычисления расстояния Левенштейна (в таблице столбец подписан "Левенштейн") и Дамерау -- Левенштейна (в таблице - "Дамерау-Л."). Все тесты пройдены успешно.
+
+
+\begin{table}[h]
+	\begin{center}
+		\captionsetup{justification=raggedright,singlelinecheck=off}
+		\caption{\label{tabular:functional_test} Функциональные тесты}
+		\begin{tabular}{|c|c|c|c|c|}
+			\hline
+			& & & \multicolumn{2}{c|}{Ожидаемый результат} \\
+			\hline
+			№&Строка 1&Строка 2&Левенштейн&Дамерау-Л. \\
+			\hline
+			1&"пустая строка"&"пустая строка"&0&0 \\
+			\hline
+			2&aaa&aaa&0&0 \\
+			\hline
+			3&"пустая строка"&asd&3&3 \\
+			\hline
+			4&asd&пустая строка"&3&3 \\
+			\hline
+			5&aaa&aaaaa&2&2 \\
+			\hline
+			8&as&sa&2&1 \\
+			\hline
+			9&asas&sasa&4&2 \\
+			\hline
+			10&asas&saas&2&1 \\
+			\hline
+			11&asas&saasa&3&2 \\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+
+\section*{Вывод}
+
+Были разработаны и протестированы алгоритмы: нахождения расстояния Левенштейна нерекурсивно, нахождения расстояния Дамерау -- Левенштейна нерекурсивно, рекурсивно, а также рекурсивно с кешированием.
